@@ -1,6 +1,6 @@
 const express = require("express")
 const Users = require("../users/users-model")
-
+const bcrypt = require("bcryptjs")
 const router = express.Router()
 
 router.post("/register", async (req, res, next) => {
@@ -24,8 +24,11 @@ router.post("/login", async (req, res, next) => {
 	try {
 		const { username, password } = req.body
 		const user = await Users.findBy({ username }).first()
+		// const hash = await bcrypt.hash(password, 15)
+		const passwordValidation = await bcrypt.compare(password, user.password)
 
-		if (!user) {
+
+		if (!user || !passwordValidation) {
 			return res.status(401).json({
 				message: "Invalid Credentials",
 			})
